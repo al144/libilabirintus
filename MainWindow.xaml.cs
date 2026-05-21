@@ -24,6 +24,11 @@ namespace libilabirintus
 
             Maze maze = new("na");
 
+            drawMap(maze);
+        }
+
+        void drawMap(Maze maze)
+        {
             int rows = maze.Row;
             int columns = maze.Column;
 
@@ -49,10 +54,13 @@ namespace libilabirintus
                     {
                         continue;
                     }
-                    Label label = new Label
+                    Label label = new()
                     {
                         Content = maze.Map[col, row],
-                        FontSize = 80,
+                        FontSize = 100,
+                        FontFamily = new FontFamily("Consolas"),
+                        Padding = new Thickness(0),
+                        Margin = new Thickness(0),
                     };
 
                     Grid.SetRow(label, row);

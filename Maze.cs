@@ -22,7 +22,7 @@ namespace libilabirintus
         {
             this.Name = name;
             this.Map = getMap();
-            this.TreasuryNum = getTreasuryRomNum();
+            this.TreasuryNum = getTreasuryRoomNum();
         }
 
         char[,] getMap()
@@ -52,7 +52,7 @@ namespace libilabirintus
             return map;
         }
 
-        int getTreasuryRomNum()
+        int getTreasuryRoomNum()
         {
             int num = 0;
 
