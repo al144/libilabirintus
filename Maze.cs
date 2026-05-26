@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using libilabirintus;
 
 namespace libilabirintus
 {
@@ -16,6 +17,7 @@ namespace libilabirintus
         public int Row { get; private set; }
         public int Column { get; private set; }
         public char[,] Map { get; private set; }
+        public Player Creator { get; private set; }
 
 
         public Maze(string name)

@@ -5,20 +5,82 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:libilabirintus"
         mc:Ignorable="d"
+        KeyDown="MainWindow_OnKeyDown"
         Title="Libilabirintus" Height="800" Width="1300" ResizeMode="NoResize">
+    
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="2.5*"/>
-        </Grid.RowDefinitions>
+        
+        <Grid x:Name="CreatePlayerGrid" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250">
+                <TextBlock Text="Jatekos Letrehozasa"
+                           FontSize="30"
+                           Margin="0,0,0,20"
+                           TextAlignment="Center"/>
 
-        <!-- upper bar -->
-        <Label Grid.Row="0" Background="Black"></Label>
-        <Label x:Name="debug" Grid.Row="0" Content="dasda" Background="AliceBlue"/>
+                <TextBox x:Name="CreateUserNameBox"
+                         Height="35"
+                         Margin="0,0,0,10"/>
 
-        <!-- maze -->
-        <Label Grid.Row="1" Background="Gray"/>
-        <Grid x:Name="citygrid" Grid.Row="1"/>
+                <PasswordBox x:Name="CreatePasswordBox"
+                             Height="35"
+                             Margin="0,0,0,20"/>
 
-    </Grid>
+                <Button Content="Belépés"
+                        Height="35" Click="CreatePlayerButton"/>
+            </StackPanel>       
+
+            
+        </Grid>
+        
+        <Grid x:Name="LoginGrid" Background="AliceBlue" Visibility="Visible">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250">
+           
+                <TextBlock Text="Bejelentkezés"
+                           FontSize="30"
+                           Margin="0,0,0,20"
+                           TextAlignment="Center"/>
+
+                <TextBox x:Name="LoginUsernameBox"
+                         Height="35"
+                         Margin="0,0,0,10"/>
+
+                <PasswordBox x:Name="LoginPasswordBox"
+                             Height="35"
+                             Margin="0,0,0,20"/>
+
+                <Button Content="Belépés"
+                        Height="35" Click="LoginButton"/>
+                <Button Content="Jatekos letrehozasa" Height="35" Click="GoToCreatePlayerButton"></Button>
+            </StackPanel>       
+        </Grid>
+        
+        <Grid x:Name="SelectorGrid" Visibility="Collapsed">
+           <Grid.ColumnDefinitions>
+               <ColumnDefinition Width="550"/>
+               <ColumnDefinition/>
+           </Grid.ColumnDefinitions> 
+            
+            <ListBox Grid.Column="0" x:Name="SelectionListBox" Height="800" Width="550" HorizontalAlignment="Left"/>
+            <Grid Grid.Column="1" x:Name="preGrid"></Grid>
+                
+        </Grid>
+        
+        <Grid x:Name="InGameGrid" Visibility="Collapsed">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="2.5*"/>
+            </Grid.RowDefinitions>
+
+            <!-- upper bar -->
+            <Label Grid.Row="0" Background="Black"></Label>
+            <Label x:Name="debug" Grid.Row="0" Content="dasda" Background="AliceBlue"/>
+
+            <!-- maze -->
+            <Label Grid.Row="1" Background="Gray"></Label>
+            <Grid x:Name="citygrid" Grid.Row="1"/>
+
+        </Grid>
+           
+    </Grid> 
 </Window>
