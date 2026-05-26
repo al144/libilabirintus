@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,11 +10,17 @@ namespace libilabirintus
 {
     class Database
     {
-        private const string ConnectionString = "Data Source=labirintus.db";
+        static string dbPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "..\\..\\..\\labirintus.db"
+        );
+
+        static string connectionString =
+            $"Data Source={dbPath}";
 
         private static SqliteConnection OpenConnection()
         {
-            SqliteConnection connection = new(ConnectionString);
+            SqliteConnection connection = new(connectionString);
             connection.Open();
 
             using SqliteCommand command = connection.CreateCommand();
