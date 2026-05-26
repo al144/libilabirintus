@@ -12,13 +12,12 @@ namespace libilabirintus
 {
     class Maze
     {
-        public string Name { get; private set; }
-        public int TreasuryNum { get; private set; }
-        public int Row { get; private set; }
-        public int Column { get; private set; }
-        public char[,] Map { get; private set; }
-        public Player Creator { get; private set; }
-
+        public int id { get;  set; }
+        public string Name { get; set; }
+        public int TreasuryNum { get;  set; }
+        public int Row { get;  set; }
+        public int Column { get; set; }
+        public char[,] Map { get; set; }
 
         public Maze(string name)
         {
@@ -27,6 +26,14 @@ namespace libilabirintus
             this.TreasuryNum = getTreasuryRoomNum();
         }
 
+        public Maze(string name, char[,] map, int row, int column)
+        {
+            this.Name = name;
+            this.Map = map;
+            this.Row = row;
+            this.Column = column;
+        }
+        
         char[,] getMap()
         {
             OpenFileDialog ofd = new();

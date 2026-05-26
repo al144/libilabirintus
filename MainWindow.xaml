@@ -32,7 +32,7 @@
             
         </Grid>
         
-        <Grid x:Name="LoginGrid" Background="AliceBlue" Visibility="Visible">
+        <Grid x:Name="LoginGrid" Background="AliceBlue" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250">
            
                 <TextBlock Text="Bejelentkezés"
@@ -54,14 +54,14 @@
             </StackPanel>       
         </Grid>
         
-        <Grid x:Name="SelectorGrid" Visibility="Collapsed">
+        <Grid x:Name="SelectorGrid" Visibility="Visible">
            <Grid.ColumnDefinitions>
-               <ColumnDefinition Width="550"/>
                <ColumnDefinition/>
+               <ColumnDefinition Width="1000"/>
            </Grid.ColumnDefinitions> 
             
-            <ListBox Grid.Column="0" x:Name="SelectionListBox" Height="800" Width="550" HorizontalAlignment="Left"/>
-            <Grid Grid.Column="1" x:Name="preGrid"></Grid>
+            <ListBox Grid.Column="0" x:Name="SelectionListBox" Width="290" Height="800"  HorizontalAlignment="Left" SelectionChanged="SelectionChanged"/>
+            <Grid Grid.Column="1" x:Name="preGrid" VerticalAlignment="Center"></Grid>
                 
         </Grid>
         

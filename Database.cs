@@ -341,6 +341,63 @@ namespace libilabirintus
             return Convert.ToInt32(result);
         }
 
+        static public Maze getMazeByName(string mazeName)
+        {
+            using SqliteConnection connection = OpenConnection();
+            
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  SELECT id, name, row, column, map
+                                  FROM maze
+                                  WHERE name = $mazeName;
+                                  """;
+            
+            command.Parameters.AddWithValue("$mazeName", mazeName);
+            
+            using SqliteDataReader reader = command.ExecuteReader();
+
+            if (!reader.Read())
+            {
+                return null;
+            };
+
+            return new Maze(
+               name: reader.GetString(1),
+               map: StringToCharArray(reader.GetString(4)),
+               row: reader.GetInt32(2),
+               column: reader.GetInt32(2)
+            );
+        }
+        
+        public static List<Maze> GetAllMazes()
+        {
+            List<Maze> mazes = new List<Maze>();
+
+            using SqliteConnection connection = OpenConnection();
+
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  SELECT id, name, row, column, map
+                                  FROM maze;
+                                  """;
+
+            using SqliteDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                Maze maze = new Maze(
+                    name: reader.GetString(1),
+                    map: StringToCharArray(reader.GetString(4)),
+                    row: reader.GetInt32(2),
+                    column: reader.GetInt32(3)
+                );
+
+                mazes.Add(maze);
+            }
+
+            return mazes;
+        }
+
         private static int GetMazeId(SqliteConnection connection, string mazeName)
         {
             using SqliteCommand command = connection.CreateCommand();

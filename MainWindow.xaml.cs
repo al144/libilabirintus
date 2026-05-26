@@ -27,10 +27,9 @@ namespace libilabirintus
             
             Database.Init();
             
-            dummyListBox();
             
-            //int mazeid = Database.SaveMaze(new Maze("ds"));
-
+            //Database.SaveMaze(new Maze("ds"));
+            appendMapList(Database.GetAllMazes());
             
         }
 
@@ -75,22 +74,61 @@ namespace libilabirintus
                 }
             }
         }
-
-        void drawPreMap(char[,] Map, int rows, int columns)
+        
+        void drawPreMap(Maze maze)
         {
-            
+            if (maze == null)
+            {
+                return;
+            }
+
             preGrid.RowDefinitions.Clear();
             preGrid.ColumnDefinitions.Clear();
             preGrid.Children.Clear();
 
-            for (int i = 0; i < rows; i++)
+            char[,] Map = maze.Map;
+
+            // Nálad a tömb első dimenziója az oszlop,
+            // a második dimenziója a sor.
+            int columns = Map.GetLength(0);
+            int rows = Map.GetLength(1);
+
+            double maxWidth = 1000.0;
+            double maxHeight = 800.0;
+
+            // Ezt állítgasd, ha túl nagy vagy túl kicsi a vízszintes távolság.
+            // Ha túl nagy a rés: csökkentsd, pl. 0.50
+            // Ha összecsúszik: növeld, pl. 0.65
+            double charWidthRatio = 0.55;
+
+            double fontSizeByHeight = maxHeight / rows;
+            double fontSizeByWidth = maxWidth / (columns * charWidthRatio);
+
+            double fontSize = Math.Min(fontSizeByHeight, fontSizeByWidth);
+
+            double cellWidth = fontSize * charWidthRatio;
+            double cellHeight = fontSize;
+
+            preGrid.Width = columns * cellWidth;
+            preGrid.Height = rows * cellHeight;
+
+            preGrid.HorizontalAlignment = HorizontalAlignment.Center;
+            preGrid.VerticalAlignment = VerticalAlignment.Center;
+
+            for (int row = 0; row < rows; row++)
             {
-                preGrid.RowDefinitions.Add(new RowDefinition());
+                preGrid.RowDefinitions.Add(new RowDefinition
+                {
+                    Height = new GridLength(cellHeight)
+                });
             }
 
-            for (int i = 0; i < columns; i++)
+            for (int col = 0; col < columns; col++)
             {
-                preGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                preGrid.ColumnDefinitions.Add(new ColumnDefinition
+                {
+                    Width = new GridLength(cellWidth)
+                });
             }
 
             for (int row = 0; row < rows; row++)
@@ -101,13 +139,18 @@ namespace libilabirintus
                     {
                         continue;
                     }
+
                     Label label = new()
                     {
                         Content = Map[col, row],
-                        FontSize = 100,
+                        FontSize = fontSize,
                         FontFamily = new FontFamily("Consolas"),
                         Padding = new Thickness(0),
                         Margin = new Thickness(0),
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        VerticalAlignment = VerticalAlignment.Stretch
                     };
 
                     Grid.SetRow(label, row);
@@ -116,7 +159,7 @@ namespace libilabirintus
                     preGrid.Children.Add(label);
                 }
             }
-        } 
+        }
         
         private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -156,12 +199,18 @@ namespace libilabirintus
             CreatePlayerGrid.Visibility = Visibility.Visible;
         }
 
-        void dummyListBox()
+        void appendMapList(List<Maze> mazes)
         {
-            for (int i = 0; i < 30; i++)
+            foreach (var maze in mazes)
             {
-                SelectionListBox.Items.Add(i);
+                SelectionListBox.Items.Add(maze.Name);
+                Console.WriteLine("ka");
             }
+        }
+
+        private void SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            drawPreMap(Database.getMazeByName(SelectionListBox.SelectedItem.ToString())); 
         }
     }
 }
