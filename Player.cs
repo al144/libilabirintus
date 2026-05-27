@@ -10,12 +10,10 @@ namespace libilabirintus
 {
     class Player
     {
-        public int Id {get; private set;}
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
-        public Player(int id, string name)
+        public Player(string name)
         {
-            this.Id = id;
             this.Name = name;
         }
         
@@ -24,13 +22,17 @@ namespace libilabirintus
             return this;
         }
 
-        public void Move(KeyEventArgs e, Maze maze)
+        public void Move(Key e, Maze maze)
         {
+            Console.WriteLine("moce");
             int x = 0;
             int y = 0;
             
-            switch (e.Key)
+            switch (e)
             {
+                default: 
+                    return;
+                
                 case Key.W:
                     y = 1;
                     break;
@@ -44,8 +46,6 @@ namespace libilabirintus
                     x = 1;
                     break;
                 
-                default:
-                    return;
             }
 
             Console.WriteLine(x + " " + y);

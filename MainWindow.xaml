@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:libilabirintus"
         mc:Ignorable="d"
-        KeyDown="MainWindow_OnKeyDown"
+        KeyDown="Game_OnKeyDown"
         Title="Libilabirintus" Height="800" Width="1300" ResizeMode="NoResize">
     
     <Grid>
@@ -32,7 +32,7 @@
             
         </Grid>
         
-        <Grid x:Name="LoginGrid" Background="AliceBlue" Visibility="Collapsed">
+        <Grid x:Name="LoginGrid" Background="AliceBlue" Visibility="Visible">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250">
            
                 <TextBlock Text="Bejelentkezés"
@@ -54,13 +54,13 @@
             </StackPanel>       
         </Grid>
         
-        <Grid x:Name="SelectorGrid" Visibility="Visible">
+        <Grid x:Name="SelectorGrid" Visibility="Collapsed">
            <Grid.ColumnDefinitions>
-               <ColumnDefinition/>
+               <ColumnDefinition Width="300"/>
                <ColumnDefinition Width="1000"/>
            </Grid.ColumnDefinitions> 
             
-            <ListBox Grid.Column="0" x:Name="SelectionListBox" Width="290" Height="800"  HorizontalAlignment="Left" SelectionChanged="SelectionChanged"/>
+            <ListBox Grid.Column="0" x:Name="SelectionListBox" Width="300" Height="800" KeyDown="SelectEnter" HorizontalAlignment="Left" SelectionChanged="SelectionChanged"/>
             <Grid Grid.Column="1" x:Name="preGrid" VerticalAlignment="Center"></Grid>
                 
         </Grid>

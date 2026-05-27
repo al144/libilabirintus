@@ -33,38 +33,69 @@ namespace libilabirintus
             
         }
 
-        void drawMap(char[,] Map, int rows, int columns)
+        
+        
+        void drawMap(Maze maze)
         {
-            
+            if (maze == null) return;
+
             citygrid.RowDefinitions.Clear();
             citygrid.ColumnDefinitions.Clear();
             citygrid.Children.Clear();
 
-            for (int i = 0; i < rows; i++)
+            char[,] map = maze.Map;
+
+            int rows = maze.Row;
+            int columns = maze.Column;
+
+            double maxWidth = 1300;
+            double maxHeight = 545;
+
+            double charWidthRatio = 0.55;
+
+            double fontSize = Math.Min(
+                maxHeight / rows,
+                maxWidth / (columns * charWidthRatio)
+            );
+
+            double cellWidth = fontSize * charWidthRatio;
+            double cellHeight = fontSize;
+
+            citygrid.Width = columns * cellWidth;
+            citygrid.Height = rows * cellHeight;
+
+            for (int row = 0; row < rows; row++)
             {
-                citygrid.RowDefinitions.Add(new RowDefinition());
+                citygrid.RowDefinitions.Add(new RowDefinition
+                {
+                    Height = new GridLength(cellHeight)
+                });
             }
 
-            for (int i = 0; i < columns; i++)
+            for (int col = 0; col < columns; col++)
             {
-                citygrid.ColumnDefinitions.Add(new ColumnDefinition());
+                citygrid.ColumnDefinitions.Add(new ColumnDefinition
+                {
+                    Width = new GridLength(cellWidth)
+                });
             }
 
             for (int row = 0; row < rows; row++)
             {
                 for (int col = 0; col < columns; col++)
                 {
-                    if (Map[col, row] == '.')
-                    {
-                        continue;
-                    }
+
+                    if (map[col, row] == '.') map[col, row] = ' ';
+
                     Label label = new()
                     {
-                        Content = Map[col, row],
-                        FontSize = 100,
+                        Content = map[col, row],
+                        FontSize = fontSize,
                         FontFamily = new FontFamily("Consolas"),
                         Padding = new Thickness(0),
                         Margin = new Thickness(0),
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        VerticalContentAlignment = VerticalAlignment.Center
                     };
 
                     Grid.SetRow(label, row);
@@ -73,8 +104,7 @@ namespace libilabirintus
                     citygrid.Children.Add(label);
                 }
             }
-        }
-        
+        }       
         void drawPreMap(Maze maze)
         {
             if (maze == null)
@@ -88,17 +118,13 @@ namespace libilabirintus
 
             char[,] Map = maze.Map;
 
-            // Nálad a tömb első dimenziója az oszlop,
-            // a második dimenziója a sor.
-            int columns = Map.GetLength(0);
-            int rows = Map.GetLength(1);
+            int columns = maze.Column;
+            int rows = maze.Row;
 
             double maxWidth = 1000.0;
             double maxHeight = 800.0;
 
-            // Ezt állítgasd, ha túl nagy vagy túl kicsi a vízszintes távolság.
-            // Ha túl nagy a rés: csökkentsd, pl. 0.50
-            // Ha összecsúszik: növeld, pl. 0.65
+            // en ra nem jottem volna magamtol
             double charWidthRatio = 0.55;
 
             double fontSizeByHeight = maxHeight / rows;
@@ -161,13 +187,15 @@ namespace libilabirintus
             }
         }
         
-        private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
+        private void Game_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (InGameGrid.Visibility == Visibility.Visible)
-            {
-                if (e.IsRepeat) return;
-                player.Move(e, maze);
-            }
+            
+            if (e.Key == Key.Enter) return;
+            if (InGameGrid.Visibility != Visibility.Visible) return;
+            if (e.IsRepeat) return;
+
+            Console.WriteLine(e.Key);
+            player.Move(e.Key, maze);
            
         }
 
@@ -182,15 +210,12 @@ namespace libilabirintus
         {
             if (Database.CheckLogin(LoginUsernameBox.Text, LoginPasswordBox.Password))
             {
-                Console.WriteLine(Database.GetSavesForPlayer(LoginUsernameBox.Text));
+                player = Database.GetPlayerByName(LoginUsernameBox.Text);
+            
+                LoginGrid.Visibility = Visibility.Collapsed;
+                SelectorGrid.Visibility = Visibility.Visible;
             }
-            
-            LoginGrid.Visibility = Visibility.Collapsed;
-            InGameGrid.Visibility = Visibility.Visible;
 
-            SaveData test = Database.GetSavesForPlayer(LoginUsernameBox.Text).First();
-            
-            drawMap(test.MazeMap, test.Row, test.Column);
         }
 
         private void GoToCreatePlayerButton(object sender, RoutedEventArgs e)
@@ -204,13 +229,26 @@ namespace libilabirintus
             foreach (var maze in mazes)
             {
                 SelectionListBox.Items.Add(maze.Name);
-                Console.WriteLine("ka");
             }
         }
 
         private void SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            drawPreMap(Database.getMazeByName(SelectionListBox.SelectedItem.ToString())); 
+            drawPreMap(Database.getMazeByName(SelectionListBox.SelectedItem.ToString()));
+            Console.WriteLine(player.GetPlayer().Name);
         }
+
+        private void SelectEnter(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            string selectedMazeName = SelectionListBox.SelectedItem.ToString();
+            Console.WriteLine(selectedMazeName);
+            
+            InGameGrid.Visibility = Visibility.Visible;
+            SelectorGrid.Visibility = Visibility.Collapsed;
+            
+            drawMap(Database.getMazeByName(selectedMazeName));
+        }
+
     }
 }

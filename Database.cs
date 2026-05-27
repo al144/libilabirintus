@@ -341,6 +341,29 @@ namespace libilabirintus
             return Convert.ToInt32(result);
         }
 
+        public static Player? GetPlayerByName(string playerName)
+        {
+            using SqliteConnection connection = OpenConnection();
+
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                                  SELECT username
+                                  FROM player
+                                  WHERE username = $playerName;
+                                  """;
+
+            command.Parameters.AddWithValue("$playerName", playerName);
+
+            using SqliteDataReader reader = command.ExecuteReader();
+
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            return new Player(reader.GetString(0));
+        }
+
         static public Maze getMazeByName(string mazeName)
         {
             using SqliteConnection connection = OpenConnection();
@@ -365,7 +388,7 @@ namespace libilabirintus
                name: reader.GetString(1),
                map: StringToCharArray(reader.GetString(4)),
                row: reader.GetInt32(2),
-               column: reader.GetInt32(2)
+               column: reader.GetInt32(3)
             );
         }
         
