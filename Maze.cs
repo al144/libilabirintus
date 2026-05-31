@@ -18,6 +18,7 @@ namespace libilabirintus
         public int Row { get;  set; }
         public int Column { get; set; }
         public char[,] Map { get; set; }
+        
 
         public Maze(string name)
         {
@@ -46,19 +47,44 @@ namespace libilabirintus
 
             string[] notCharMap = File.ReadAllLines(ofd.FileName);
 
-            map = new char[notCharMap[0].Length, notCharMap.Length];
-            this.Row = notCharMap.Length;
+            map = new char[notCharMap.Length, notCharMap[0].Length];
+            this.Row =  notCharMap.Length;
             this.Column = notCharMap[0].Length;
 
             for (int i = 0; i < notCharMap.Length; i++)
             {
                 for (int j = 0; j < notCharMap[i].Length; j++)
                 {
-                    map[j, i] = notCharMap[i][j];
+                    map[i, j] = notCharMap[i][j];
                 }
             }
 
             return map;
+        }
+
+        public List<int[]> FindExits()
+        {
+            
+            List<int[]> exits = new List<int[]>();
+            
+            for (int i = 0; i < this.Row; i++)
+            {
+                if(new char[]{ '╬', '═', '╦', '╩', '╣', '╗', '╝'}.Contains(Map[i, 0])) exits.Add(new int[] { i, 0 } );
+            }
+            for (int i = 0; i < Row; i++)
+            {
+                if(new char[]{ '╬', '═', '╦', '╩', '╠', '╚', '╔'}.Contains(Map[i, Column-1])) exits.Add(new int[] { i, Column-1} );
+            }
+            for (int i = 0; i < Column-1; i++)
+            {
+                if(new char[]{ '╬', '╩', '║', '╣', '╠',  '╝', '╚'}.Contains(Map[0, i])) exits.Add(new int[] { 0, i} );
+            }
+            for (int i = 0; i < Column-1; i++)
+            {
+                if(new char[]{ '╬', '╦', '║', '╣', '╠', '╗', '╔'}.Contains(Map[Row-1, i])) exits.Add(new int[] {Row-1, i } );
+            }
+            
+            return exits;
         }
 
         int getTreasuryRoomNum()

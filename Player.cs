@@ -22,33 +22,69 @@ namespace libilabirintus
             return this;
         }
 
-        public void Move(Key e, Maze maze)
+        public int[] GetPlayerPosFromSave(Maze maze)
         {
-            Console.WriteLine("moce");
-            int x = 0;
-            int y = 0;
-            
-            switch (e)
+            SaveData? save = Database.GetSave(this.Name, maze.Name);
+
+            char[,] exploredMap = new char[maze.Row,maze.Column];
+
+            if (save != null)
             {
-                default: 
-                    return;
-                
-                case Key.W:
-                    y = 1;
-                    break;
-                case Key.A:
-                    x = -1;
-                    break;
-                case Key.S:
-                    y = -1;
-                    break;
-                case Key.D:
-                    x = 1;
-                    break;
-                
+                return new[] { save.PlayerX, save.PlayerY };
             }
 
-            Console.WriteLine(x + " " + y);
+            var exits = maze.FindExits();
+            int[] randomExit = exits[Random.Shared.Next(exits.Count)];
+
+            Database.SaveGame(
+                this.Name,
+                maze,
+                exploredMap,
+                randomExit[0],
+                randomExit[1]
+            );
+
+            return randomExit;
+        }
+
+        public int[] Move(Key e, Maze maze, int[] playerPos)
+        {
+            int x = playerPos[0];
+            int y = playerPos[1];
+
+            int newX = x;
+            int newY = y;
+
+            switch (e)
+            {
+                case Key.W:
+                    newY--;
+                    break;
+
+                case Key.A:
+                    newX--;
+                    break;
+
+                case Key.S:
+                    newY++;
+                    break;
+
+                case Key.D:
+                    newX++;
+                    break;
+
+                default:
+                    return playerPos;
+            }
+
+            if (newY > maze.Row-1 || newX > maze.Column-1 || newY < 0 || newX < 0 || maze.Map[newY, newX] == ' ')
+            {
+                return playerPos;
+            }
+
+            // Console.WriteLine((int)maze.Map[newX, newY]);
+
+            return new[] { newX, newY };
         }
     }
 }

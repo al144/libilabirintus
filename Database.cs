@@ -10,9 +10,11 @@ namespace libilabirintus
 {
     class Database
     {
+        
+        
         static string dbPath = Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory,
-            "..\\..\\..\\labirintus.db"
+            $"..\\..\\..\\labirintus_.Sav"
         );
 
         static string connectionString =
@@ -157,7 +159,7 @@ namespace libilabirintus
         {
             int playerId = GetOrCreatePlayer(playerName);
             int mazeId = SaveMaze(maze);
-
+            
             using SqliteConnection connection = OpenConnection();
 
             using SqliteCommand command = connection.CreateCommand();
@@ -364,7 +366,7 @@ namespace libilabirintus
             return new Player(reader.GetString(0));
         }
 
-        static public Maze getMazeByName(string mazeName)
+        static public Maze GetMazeByName(string mazeName)
         {
             using SqliteConnection connection = OpenConnection();
             
