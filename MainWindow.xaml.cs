@@ -31,8 +31,7 @@ namespace libilabirintus
             
             Database.Init();
         
-            // Database.SaveMaze(new Maze("osp"));
-            // Database.DeleteSave(1);
+            // Database.SaveMaze(new Maze("osdasp"));
 
         }
         
@@ -164,9 +163,12 @@ namespace libilabirintus
             {
                 for (int col = 0; col < columns; col++)
                 {
-
                     if (map[row, col] == '.') map[row, col] = ' ';
-                    
+
+                    Grid cellGrid = new()
+                    {
+                        Margin = new Thickness(0)
+                    };
 
                     Label label = new()
                     {
@@ -177,26 +179,111 @@ namespace libilabirintus
                         Padding = new Thickness(0),
                         Margin = new Thickness(0),
                         HorizontalContentAlignment = HorizontalAlignment.Center,
-                        VerticalContentAlignment = VerticalAlignment.Center
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        VerticalAlignment = VerticalAlignment.Stretch
                     };
 
-                    if (currX == col && currY == row )
+                    if (currX == col && currY == row)
                     {
-                        label.Background = new  SolidColorBrush(Colors.Blue);
+                        cellGrid.Background = new SolidColorBrush(Colors.Blue);
                     }
 
                     if (explored[row, col] == map[row, col])
                     {
-                       label.Foreground = Brushes.Black; 
+                        label.Foreground = Brushes.Black;
                     }
 
-                    Grid.SetRow(label, row);
-                    Grid.SetColumn(label, col);
+                    cellGrid.Children.Add(label);
 
-                    citygrid.Children.Add(label);
+                    string arrow = GetMoveArrowForCell(maze, currX, currY, col, row);
+
+                    if (arrow != "")
+                    {
+                        Label arrowLabel = new()
+                        {
+                            Content = arrow,
+                            FontSize = fontSize * 0.45,
+                            Foreground = Brushes.Gold,
+                            FontWeight = FontWeights.Bold,
+                            FontFamily = new FontFamily("Consolas"),
+                            Padding = new Thickness(0),
+                            Margin = new Thickness(0),
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            VerticalAlignment = VerticalAlignment.Stretch,
+                            IsHitTestVisible = false
+                        };
+
+                        SetArrowPosition(arrowLabel, arrow);
+
+                        Panel.SetZIndex(arrowLabel, 10);
+                        cellGrid.Children.Add(arrowLabel);
+                    }
+
+                    Grid.SetRow(cellGrid, row);
+                    Grid.SetColumn(cellGrid, col);
+
+                    citygrid.Children.Add(cellGrid);
                 }
             }
-        }       
+        }
+
+        string GetMoveArrowForCell(Maze maze, int currX, int currY, int col, int row)
+        {
+            int[] playerPos = { currX, currY };
+
+            int[] up = player.Move(Key.W, maze, playerPos);
+            if (up[0] == col && up[1] == row)
+            {
+                return "↑";
+            }
+
+            int[] left = player.Move(Key.A, maze, playerPos);
+            if (left[0] == col && left[1] == row)
+            {
+                return "←";
+            }
+
+            int[] down = player.Move(Key.S, maze, playerPos);
+            if (down[0] == col && down[1] == row)
+            {
+                return "↓";
+            }
+
+            int[] right = player.Move(Key.D, maze, playerPos);
+            if (right[0] == col && right[1] == row)
+            {
+                return "→";
+            }
+
+            return "";
+        }
+
+        void SetArrowPosition(Label arrowLabel, string arrow)
+        {
+            switch (arrow)
+            {
+                case "↑":
+                    arrowLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
+                    arrowLabel.VerticalContentAlignment = VerticalAlignment.Top;
+                    break;
+
+                case "←":
+                    arrowLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
+                    arrowLabel.VerticalContentAlignment = VerticalAlignment.Center;
+                    break;
+
+                case "↓":
+                    arrowLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
+                    arrowLabel.VerticalContentAlignment = VerticalAlignment.Bottom;
+                    break;
+
+                case "→":
+                    arrowLabel.HorizontalContentAlignment = HorizontalAlignment.Right;
+                    arrowLabel.VerticalContentAlignment = VerticalAlignment.Center;
+                    break;
+            }
+        }      
         
         void DrawPreMap(Maze maze)
         {
@@ -279,6 +366,7 @@ namespace libilabirintus
                 }
             }
         }
+        
         
         private void Game_OnKeyDown(object sender, KeyEventArgs e)
         {

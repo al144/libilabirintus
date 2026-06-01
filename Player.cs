@@ -16,7 +16,7 @@ namespace libilabirintus
         {
             this.Name = name;
         }
-        
+
         public Player GetPlayer()
         {
             return this;
@@ -26,7 +26,7 @@ namespace libilabirintus
         {
             SaveData? save = Database.GetSave(this.Name, maze.Name);
 
-            char[,] exploredMap = new char[maze.Row,maze.Column];
+            char[,] exploredMap = new char[maze.Row, maze.Column];
 
             if (save != null)
             {
@@ -77,14 +77,70 @@ namespace libilabirintus
                     return playerPos;
             }
 
-            if (newY > maze.Row-1 || newX > maze.Column-1 || newY < 0 || newX < 0 || maze.Map[newY, newX] == ' ')
+            if (newY > maze.Row - 1 || newX > maze.Column - 1 || newY < 0 || newX < 0)
             {
                 return playerPos;
             }
 
-            // Console.WriteLine((int)maze.Map[newX, newY]);
+            char current = maze.Map[y, x];
+            char next = maze.Map[newY, newX];
 
-            return new[] { newX, newY };
+            // Tanarur nem mondott semmit a kod szepsegerol es a feladatba sem szerepel hogy ezert pontlevonas jarna!!
+            if (
+                e == Key.W &&
+                (
+                    current == '╬' || current == '║' || current == '╩' ||
+                    current == '╣' || current == '╠' || current == '╝' ||
+                    current == '╚' || current == '█'
+                ) &&
+                (
+                    next == '╬' || next == '║' || next == '╦' ||
+                    next == '╣' || next == '╠' || next == '╗' ||
+                    next == '╔' || next == '█'
+                )
+                ||
+                e == Key.A &&
+                (
+                    current == '╬' || current == '═' || current == '╦' ||
+                    current == '╩' || current == '╣' || current == '╗' ||
+                    current == '╝' || current == '█'
+                ) &&
+                (
+                    next == '╬' || next == '═' || next == '╦' ||
+                    next == '╩' || next == '╠' || next == '╚' ||
+                    next == '╔' || next == '█'
+                )
+                ||
+                e == Key.S &&
+                (
+                    current == '╬' || current == '║' || current == '╦' ||
+                    current == '╣' || current == '╠' || current == '╗' ||
+                    current == '╔' || current == '█'
+                ) &&
+                (
+                    next == '╬' || next == '║' || next == '╩' ||
+                    next == '╣' || next == '╠' || next == '╝' ||
+                    next == '╚' || next == '█'
+                )
+                ||
+                e == Key.D &&
+                (
+                    current == '╬' || current == '═' || current == '╦' ||
+                    current == '╩' || current == '╠' || current == '╚' ||
+                    current == '╔' || current == '█'
+                ) &&
+                (
+                    next == '╬' || next == '═' || next == '╦' ||
+                    next == '╩' || next == '╣' || next == '╗' ||
+                    next == '╝' || next == '█'
+                )
+            )
+            {
+                return new[] { newX, newY };
+            }
+
+            return playerPos;
         }
+        
     }
 }

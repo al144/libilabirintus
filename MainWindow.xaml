@@ -95,6 +95,11 @@
 
             <!-- upper bar -->
             <Label Grid.Row="0" Background="Black"></Label>
+            <StackPanel >
+                <Label x:Name="PointLabel"></Label>
+                <Label x:Name="StepsLabel"></Label>
+                <Label x:Name="CoordinateLabel"></Label>
+            </StackPanel>
 
             <!-- maze -->
             <Label Grid.Row="1" Background="Gray"></Label>

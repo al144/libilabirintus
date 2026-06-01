@@ -14,7 +14,7 @@ namespace libilabirintus
         
         static string dbPath = Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory,
-            $"..\\..\\..\\labirintus_.Sav"
+            $"..\\..\\..\\labirintus.db"
         );
 
         static string connectionString =
