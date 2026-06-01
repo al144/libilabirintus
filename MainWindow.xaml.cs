@@ -1,17 +1,14 @@
-﻿using Microsoft.Win32;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using IOPath = System.IO.Path;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace libilabirintus
 {
@@ -33,12 +30,98 @@ namespace libilabirintus
             InitializeComponent();
             
             Database.Init();
+            ShowScene(LanguageGrid);
         
-            // Database.SaveMaze(new Maze("osdasp"));
 
         }
         
+        private void ApplyLanguage()
+        {
+            ApplyLanguageToChildren(MainContainer);
+        }
+
+        private Dictionary<string, string> translations = new();
+        private void LoadLanguage(string languageCode)
+        {
+            string outputPath = IOPath.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "..\\..\\..\\Languages",
+                $"{languageCode}.json"
+            );
+
+            string projectPath = IOPath.GetFullPath(IOPath.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "..",
+                "..",
+                "..",
+                "Languages",
+                $"{languageCode}.json"
+            ));
+
+            string path = File.Exists(outputPath) ? outputPath : projectPath;
+
+            if (!File.Exists(path))
+            {
+                MessageBox.Show($"Language file not found: {path}");
+                return;
+            }
+
+            string json = File.ReadAllText(path, Encoding.UTF8);
+
+            translations = JsonSerializer.Deserialize<Dictionary<string, string>>(json)
+                           ?? new Dictionary<string, string>();
+        }
+
+        private string T(string key)
+        {
+            if (translations.TryGetValue(key, out string? value))
+            {
+                return value;
+            }
+
+            return key;
+        }
         
+        private void ApplyLanguageToChildren(DependencyObject parent)
+        {
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childCount; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is TextBlock textBlock && textBlock.Tag is string textKey)
+                {
+                    textBlock.Text = T(textKey);
+                }
+
+                if (child is ContentControl contentControl && contentControl.Tag is string contentKey)
+                {
+                    contentControl.Content = T(contentKey);
+                }
+
+                ApplyLanguageToChildren(child);
+            }
+        }
+        
+        private void ChooseHungarianLanguage(object sender, RoutedEventArgs e)
+        {
+            LoadLanguage("hu");
+            ApplyLanguage();
+            ShowScene(LoginGrid);
+        }
+
+        private void ChooseEnglishLanguage(object sender, RoutedEventArgs e)
+        {
+            LoadLanguage("en");
+            ApplyLanguage();
+            ShowScene(LoginGrid);
+        }
+
+        private void BackToLanguage(object sender, RoutedEventArgs e)
+        {
+            ShowScene(LanguageGrid);
+        }
         
         void DrawMap(Maze maze, int currX, int currY)
         {
@@ -421,19 +504,19 @@ namespace libilabirintus
 
             explored[newY, newX] = maze.Map[newY, newX];
 
-            CoordinateLabel.Content = $"Koordinatak row:{newY} ; column{newX}";
+            CoordinateLabel.Content = $"{T("Coordinates")}: row:{newY} ; column:{newX}";
 
             if (maze.Map[newY, newX] == '█')
             {
                 points++;
-                PointLabel.Content = $"Pontok: {points}";
+                PointLabel.Content = $"{T("Points")}: {points}";
 
                 maze.Map[newY, newX] = '╬';
                 explored[newY, newX] = '╬';
             }
 
             steps++;
-            StepsLabel.Content = $"Lépések: {steps}";
+            StepsLabel.Content = $"{T("Steps")}: {steps}";
 
             Database.SaveGame(
                 player.Name,
@@ -460,9 +543,14 @@ namespace libilabirintus
             selectedGrid.Visibility = Visibility.Visible;
         }
         
-        private void ShowUserError(string message)
+        private void ShowUserError(string key)
         {
-            MessageBox.Show(message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(T(key), T("ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private void ShowUserErrorText(string message)
+        {
+            MessageBox.Show(message, T("ErrorTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void CreatePlayerButton(object sender, RoutedEventArgs e)
@@ -472,31 +560,31 @@ namespace libilabirintus
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                ShowUserError("Adj meg felhasználónevet.");
+                ShowUserError("UsernameRequired");
                 return;
             }
 
             if (username.Length < 3)
             {
-                ShowUserError("A felhasználónév legyen legalább 3 karakter.");
+                ShowUserError("UsernameTooShort");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ShowUserError("Adj meg jelszót.");
+                ShowUserError("PasswordRequired");
                 return;
             }
 
             if (password.Length < 3)
             {
-                ShowUserError("A jelszó legyen legalább 3 karakter.");
+                ShowUserError("PasswordTooShort");
                 return;
             }
 
             if (Database.GetPlayerByName(username) != null)
             {
-                ShowUserError("Már létezik ilyen nevű játékos.");
+                ShowUserError("PlayerAlreadyExists");
                 return;
             }
 
@@ -511,7 +599,7 @@ namespace libilabirintus
             }
             catch (Exception ex)
             {
-                ShowUserError($"Nem sikerült létrehozni a játékost:\n{ex.Message}");
+                ShowUserErrorText($"{T("CreatePlayerFailed")}\n{ex.Message}");
             }
         }
         
@@ -522,13 +610,13 @@ namespace libilabirintus
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                ShowUserError("Add meg a felhasználónevet.");
+                ShowUserError("LoginUsernameRequired");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                ShowUserError("Add meg a jelszót.");
+                ShowUserError("LoginPasswordRequired");
                 return;
             }
 
@@ -536,13 +624,13 @@ namespace libilabirintus
 
             if (foundPlayer == null)
             {
-                ShowUserError("Nincs ilyen játékos.");
+                ShowUserError("PlayerNotFound");
                 return;
             }
 
             if (!Database.CheckLogin(username, password))
             {
-                ShowUserError("Rossz jelszó.");
+                ShowUserError("WrongPassword");
                 return;
             }
 
@@ -755,8 +843,8 @@ namespace libilabirintus
         {
             OpenFileDialog ofd = new()
             {
-                Title = "Mentés betöltése",
-                Filter = "SAV fájl (*.SAV)|*.SAV|Minden fájl (*.*)|*.*"
+                Title = T("LoadSaveDialogTitle"),
+                Filter = $"{T("SaveFileFilter")} (*.SAV)|*.SAV|{T("AllFilesFilter")} (*.*)|*.*"
             };
 
             if (ofd.ShowDialog() != true)
@@ -801,9 +889,9 @@ namespace libilabirintus
                 currPos = new[] { playerX, playerY };
                 explored = loadedExploredMap;
 
-                PointLabel.Content = $"Pontok: {points}";
-                StepsLabel.Content = $"Lépések: {steps}";
-                CoordinateLabel.Content = $"Koordinatak row:{playerY} ; column:{playerX}";
+                PointLabel.Content = $"{T("Points")}: {points}";
+                StepsLabel.Content = $"{T("Steps")}: {steps}";
+                CoordinateLabel.Content = $"{T("Coordinates")}: row:{playerY} ; column:{playerX}";
 
                 Database.SaveGame(
                     player.Name,
@@ -817,7 +905,7 @@ namespace libilabirintus
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Nem sikerült betölteni a mentést:\n{ex.Message}");
+                ShowUserErrorText($"{T("LoadSaveFailed")}\n{ex.Message}");
             }
         }
         
@@ -835,7 +923,7 @@ namespace libilabirintus
                 }
             }
 
-            throw new Exception($"Hiányzik ez az adat a mentésből: {key}");
+            throw new Exception($"{T("MissingSaveValue")}: {key}");
         }
         
         string GetSaveSection(string saveText, string sectionName)
@@ -871,7 +959,7 @@ namespace libilabirintus
 
             if (string.IsNullOrWhiteSpace(sectionText))
             {
-                throw new Exception($"Hiányzik ez a rész a mentésből: [{sectionName}]");
+                throw new Exception($"{T("MissingSaveSection")}: [{sectionName}]");
             }
 
             return sectionText;
@@ -902,5 +990,6 @@ namespace libilabirintus
         {
             ShowScene(LoginGrid);
         }
+
     }
 }

@@ -6,117 +6,284 @@
         xmlns:local="clr-namespace:libilabirintus"
         mc:Ignorable="d"
         KeyDown="Game_OnKeyDown"
-        Title="Libilabirintus" Height="800" Width="1300" ResizeMode="NoResize">
-    
+        Title="Libilabirintus"
+        Height="800"
+        Width="1300"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="BigMenuButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="220"/>
+            <Setter Property="Height" Value="100"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="InputBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+
+        <Style x:Key="TitleTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
     <Grid x:Name="MainContainer">
-        
-        <Grid x:Name="CreatePlayerGrid" Visibility="Collapsed">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250">
-                <TextBlock Text="Jatekos Letrehozasa"
-                           FontSize="30"
-                           Margin="0,0,0,20"
-                           TextAlignment="Center"/>
+
+        <Grid x:Name="LanguageGrid"
+              Background="AliceBlue"
+              Visibility="Visible">
+
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Width="420">
+
+                <TextBlock Text="Válassz nyelvet / Choose language"
+                           FontSize="32"
+                           FontWeight="Bold"
+                           TextAlignment="Center"
+                           Margin="0,0,0,15"/>
+
+                <TextBlock Text="A játék nyelve a bejelentkezés előtt választható."
+                           FontSize="16"
+                           TextAlignment="Center"
+                           Margin="0,0,0,30"/>
+
+                <Button Content="Magyar"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="ChooseHungarianLanguage"/>
+
+                <Button Content="English"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="ChooseEnglishLanguage"/>
+
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="CreatePlayerGrid"
+              Background="AliceBlue"
+              Visibility="Collapsed">
+
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Width="280">
+
+                <TextBlock Tag="CreatePlayerTitle"
+                           Text="Játékos létrehozása"
+                           Style="{StaticResource TitleTextStyle}"/>
+
+                <Label Tag="UsernameLabel"
+                       Content="Felhasználónév"/>
 
                 <TextBox x:Name="CreateUserNameBox"
-                         Height="35"
-                         FontSize="22"
-                         Margin="0,0,0,10"/>
+                         Style="{StaticResource InputBoxStyle}"/>
+
+                <Label Tag="PasswordLabel"
+                       Content="Jelszó"/>
 
                 <PasswordBox x:Name="CreatePasswordBox"
-                             Height="35"
-                             FontSize="22"
-                             Margin="0,0,0,20"/>
+                             Style="{StaticResource PasswordBoxStyle}"/>
 
-                <Button Content="Belépés"
-                        Height="35" Click="CreatePlayerButton"/>
-            </StackPanel>       
+                <Button Tag="CreatePlayerButton"
+                        Content="Játékos létrehozása"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="CreatePlayerButton"/>
 
-            
+                <Button Tag="BackToLogin"
+                        Content="Vissza"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="BackToLogin"/>
+
+            </StackPanel>
         </Grid>
-        
-        <Grid x:Name="LoginGrid" Background="AliceBlue" Visibility="Visible">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250">
-           
-                <TextBlock Text="Bejelentkezés"
-                           FontSize="30"
-                           Margin="0,0,0,20"
-                           TextAlignment="Center"/>
+
+        <Grid x:Name="LoginGrid"
+              Background="AliceBlue"
+              Visibility="Collapsed">
+
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Width="280">
+
+                <TextBlock Tag="LoginTitle"
+                           Text="Bejelentkezés"
+                           Style="{StaticResource TitleTextStyle}"/>
+
+                <Label Tag="UsernameLabel"
+                       Content="Felhasználónév"/>
 
                 <TextBox x:Name="LoginUsernameBox"
-                         Height="35"
-                         FontSize="22"
-                         Margin="0,0,0,10"/>
+                         Style="{StaticResource InputBoxStyle}"/>
+
+                <Label Tag="PasswordLabel"
+                       Content="Jelszó"/>
 
                 <PasswordBox x:Name="LoginPasswordBox"
-                             Height="35"
-                             FontSize="22"
-                             Margin="0,0,0,20"/>
+                             Style="{StaticResource PasswordBoxStyle}"/>
 
-                <Button Content="Belépés"
-                        Height="35" Click="LoginButton"/>
-                <Button Content="Jatekos letrehozasa" Height="35" Click="GoToCreatePlayerButton"></Button>
-            </StackPanel>       
-        </Grid>
-        
-        <Grid x:Name="SelectorGrid" Visibility="Collapsed">
-           <Grid.ColumnDefinitions>
-               <ColumnDefinition Width="300"/>
-               <ColumnDefinition Width="1000"/>
-           </Grid.ColumnDefinitions> 
-            
-            <StackPanel>
-                <ListBox Grid.Column="0" x:Name="SelectionListBox" Width="300" Height="500" KeyDown="SelectEnter" HorizontalAlignment="Left" SelectionChanged="SelectionChanged"/> 
-                <Button Content="Mentesfajl betoltese" Click="LoadSaveButton_OnClick"></Button>
-                <Label Content="Adja meg a map nevet"></Label>
-                <TextBox x:Name="MazeNameBlock"></TextBox>
-                <Button Content="Map Feltoltese" Click="UploadMazeButton"></Button>
+                <Button Tag="LoginButton"
+                        Content="Belépés"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="LoginButton"/>
+
+                <Button Tag="CreatePlayerButton"
+                        Content="Játékos létrehozása"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="GoToCreatePlayerButton"/>
+
+                <Button Tag="ChangeLanguage"
+                        Content="Nyelv váltása"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="BackToLanguage"/>
+
             </StackPanel>
-            <Grid Grid.Column="1" x:Name="preGrid" VerticalAlignment="Center" ></Grid>
-            <Grid Grid.Column="1" x:Name="QuestionGrid" Width="1000" Height="800" Background="AliceBlue" Visibility="Collapsed">
-                <StackPanel >
-                    <Label Content="Rejtve van az elonezet" 
+        </Grid>
+
+        <Grid x:Name="SelectorGrid"
+              Background="AliceBlue"
+              Visibility="Collapsed">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="1000"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        Background="LightSteelBlue">
+
+                <ListBox x:Name="SelectionListBox"
+                         Width="300"
+                         Height="500"
+                         KeyDown="SelectEnter"
+                         HorizontalAlignment="Left"
+                         SelectionChanged="SelectionChanged"/>
+
+                <Button Tag="LoadSave"
+                        Content="Mentésfájl betöltése"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="LoadSaveButton_OnClick"/>
+
+                <Label Tag="MazeNameLabel"
+                       Content="Adja meg a map nevét"
+                       FontSize="16"
+                       Margin="0,10,0,0"/>
+
+                <TextBox x:Name="MazeNameBlock"
+                         Height="35"
+                         FontSize="20"
+                         Margin="5,0,5,5"/>
+
+                <Button Tag="UploadMap"
+                        Content="Map feltöltése"
+                        Style="{StaticResource MenuButtonStyle}"
+                        Click="UploadMazeButton"/>
+
+            </StackPanel>
+
+            <Grid Grid.Column="1"
+                  x:Name="preGrid"
+                  VerticalAlignment="Center"/>
+
+            <Grid Grid.Column="1"
+                  x:Name="QuestionGrid"
+                  Width="1000"
+                  Height="800"
+                  Background="AliceBlue"
+                  Visibility="Collapsed">
+
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                    <Label Tag="PreviewHidden"
+                           Content="Rejtve van az előnézet"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
-                           FontSize="70"
-                           Width="800"
-                           Height="200"/>
-                
-                    <Button Content="Jatekmod Valaszto"
-                            Height="500"
-                            Width="600"
+                           FontSize="60"
+                           Width="900"
+                           Height="150"
+                           HorizontalContentAlignment="Center"/>
+
+                    <Button Tag="GameModeSelector"
+                            Content="Játékmód választó"
+                            Height="120"
+                            Width="420"
+                            FontSize="30"
                             Click="GoToGamemode"/>
-                
-                </StackPanel> 
+
+                </StackPanel>
             </Grid>
-                
         </Grid>
-        
-        <Grid x:Name="InGameGrid" Visibility="Collapsed">
-            
+
+        <Grid x:Name="InGameGrid"
+              Visibility="Collapsed">
+
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition Height="2.5*"/>
+                <RowDefinition Height="120"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- upper bar -->
-            <Label Grid.Row="0" Background="Black"></Label>
-            <StackPanel >
-                <Label x:Name="PointLabel" Content="Pontok" Foreground="Aqua"></Label>
-                <Label x:Name="StepsLabel" Content="Lepesek" Foreground="Aqua"></Label>
-                <Label x:Name="CoordinateLabel" Content="Koordinatak" Foreground="Aqua"></Label>
+            <Border Grid.Row="0"
+                    Background="Black"/>
+
+            <StackPanel Grid.Row="0"
+                        Margin="10">
+
+                <Label x:Name="PointLabel"
+                       Tag="Points"
+                       Content="Pontok"
+                       Foreground="Aqua"
+                       FontSize="20"/>
+
+                <Label x:Name="StepsLabel"
+                       Tag="Steps"
+                       Content="Lépések"
+                       Foreground="Aqua"
+                       FontSize="20"/>
+
+                <Label x:Name="CoordinateLabel"
+                       Tag="Coordinates"
+                       Content="Koordináták"
+                       Foreground="Aqua"
+                       FontSize="20"/>
+
             </StackPanel>
 
-            <!-- maze -->
-            <Label Grid.Row="1" Background="Gray"></Label>
-            <Grid x:Name="citygrid" Grid.Row="1"/>
+            <Border Grid.Row="1"
+                    Background="Gray"/>
+
+            <Grid x:Name="citygrid"
+                  Grid.Row="1"/>
 
         </Grid>
-        
-        <Grid x:Name="PauseGrid" Visibility="Collapsed">
+
+        <Grid x:Name="PauseGrid"
+              Background="AliceBlue"
+              Visibility="Collapsed">
+
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
 
-                <Label Content="Játék megállítva"
+                <Label Tag="PauseTitle"
+                       Content="Játék megállítva"
                        HorizontalAlignment="Center"
                        FontSize="30"
                        Margin="0,0,0,20"/>
@@ -124,28 +291,29 @@
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center">
 
-                    <Button Content="Folytatás"
-                            Width="200"
-                            Height="100"
-                            Margin="10"
+                    <Button Tag="Continue"
+                            Content="Folytatás"
+                            Style="{StaticResource BigMenuButtonStyle}"
                             Click="BackToInGame"/>
 
-                    <Button Content="Mentés és kilépés"
-                            Width="200"
-                            Height="100"
-                            Margin="10"
+                    <Button Tag="SaveAndExit"
+                            Content="Mentés és kilépés"
+                            Style="{StaticResource BigMenuButtonStyle}"
                             Click="SaveAndToSelector"/>
 
                 </StackPanel>
-
             </StackPanel>
         </Grid>
-        
-        <Grid x:Name="GameModeGrid" Visibility="Collapsed">
+
+        <Grid x:Name="GameModeGrid"
+              Background="AliceBlue"
+              Visibility="Collapsed">
+
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
 
-                <Label Content="Valasszon Jatekmodot"
+                <Label Tag="ChooseGamemode"
+                       Content="Válasszon játékmódot"
                        HorizontalAlignment="Center"
                        FontSize="30"
                        Margin="0,0,0,20"/>
@@ -153,28 +321,24 @@
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center">
 
-                    <Button Content="Normal Kijutas"
-                            Width="200"
-                            Height="100"
-                            Margin="10"
+                    <Button Tag="NormalExit"
+                            Content="Normál kijutás"
+                            Style="{StaticResource BigMenuButtonStyle}"
                             Click="NormalStart"/>
 
-                    <Button Content="Rejtett kereses"
-                            Width="200"
-                            Height="100"
-                            Margin="10"
+                    <Button Tag="HiddenSearch"
+                            Content="Rejtett keresés"
+                            Style="{StaticResource BigMenuButtonStyle}"
                             Click="HiddenStart"/>
                     
-                    <Button Content="Vissza Bejelentkezesbe"
-                            Width="200"
-                            Height="100"
-                            Margin="10"
+                    <Button Tag="BackToLogin"
+                            Content="Vissza A Belépésbe"
+                            Style="{StaticResource BigMenuButtonStyle}"
                             Click="BackToLogin"/>
 
                 </StackPanel>
-
             </StackPanel>
         </Grid>
-           
-    </Grid> 
+
+    </Grid>
 </Window>
