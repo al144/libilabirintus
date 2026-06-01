@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.IO;
+using IOPath = System.IO.Path;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Windows;
@@ -561,13 +562,72 @@ namespace libilabirintus
 
         private void BackToInGame(object sender, RoutedEventArgs e)
         {
-            ShowScene(GameModeGrid);
+            ShowScene(InGameGrid);
         }
 
         private void SaveAndToSelector(object sender, RoutedEventArgs e)
         {
+            if (player == null || maze == null || explored == null || currPos == null)
+            {
+                return;
+            }
+
             Database.SaveGame(player.Name, maze, explored, currPos[0], currPos[1]);
+
+            SaveGameToSavFile();
+            steps = 0;
             ShowScene(SelectorGrid);
+        }
+        
+        void SaveGameToSavFile()
+        {
+            string saveFolder = System.IO.Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "..",
+                "..",
+                "..",
+                "Saves"
+            );
+
+            Directory.CreateDirectory(saveFolder);
+
+            string safePlayerName = MakeSafeFileName(player.Name);
+            string safeMazeName = MakeSafeFileName(maze.Name);
+
+            string fileName = $"{safePlayerName}_{safeMazeName}.SAV";
+            string filePath = System.IO.Path.Combine(saveFolder, fileName);
+
+            StringBuilder sb = new();
+
+            sb.AppendLine("LIBILABIRINTUS_SAVE");
+            sb.AppendLine($"Player={player.Name}");
+            sb.AppendLine($"Maze={maze.Name}");
+            sb.AppendLine($"PlayerX={currPos[0]}");
+            sb.AppendLine($"PlayerY={currPos[1]}");
+            sb.AppendLine($"Points={points}");
+            sb.AppendLine($"Steps={steps}");
+            sb.AppendLine($"NormalGame={normalGame}");
+            sb.AppendLine($"SavedAt={DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            sb.AppendLine();
+            sb.AppendLine("[EXPLORED]");
+            sb.Append(Database.CharArrayToString(explored));
+
+            sb.AppendLine();
+            sb.AppendLine("[MAZE]");
+            sb.Append(Database.CharArrayToString(maze.Map));
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+        
+        string MakeSafeFileName(string text)
+        {
+            foreach (char c in IOPath.GetInvalidFileNameChars())
+            {
+                text = text.Replace(c, '_');
+            }
+        
+            return text;
         }
 
         private void NormalStart(object sender, RoutedEventArgs e)
@@ -604,6 +664,153 @@ namespace libilabirintus
         private void GoToGamemode(object sender, RoutedEventArgs e)
         {
             ShowScene(GameModeGrid);
+        }
+
+        private void LoadSaveButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new()
+            {
+                Title = "Mentés betöltése",
+                Filter = "SAV fájl (*.SAV)|*.SAV|Minden fájl (*.*)|*.*"
+            };
+
+            if (ofd.ShowDialog() != true)
+            {
+                return;
+            }
+
+            try
+            {
+                string saveText = File.ReadAllText(ofd.FileName, Encoding.UTF8);
+
+                string playerName = GetSaveValue(saveText, "Player");
+                string mazeName = GetSaveValue(saveText, "Maze");
+
+                int playerX = int.Parse(GetSaveValue(saveText, "PlayerX"));
+                int playerY = int.Parse(GetSaveValue(saveText, "PlayerY"));
+
+                points = int.Parse(GetSaveValue(saveText, "Points"));
+                steps = int.Parse(GetSaveValue(saveText, "Steps"));
+                normalGame = bool.Parse(GetSaveValue(saveText, "NormalGame"));
+
+                string exploredText = GetSaveSection(saveText, "EXPLORED");
+                string mazeText = GetSaveSection(saveText, "MAZE");
+
+                char[,] loadedMazeMap = Database.StringToCharArray(mazeText);
+                char[,] loadedExploredMap = Database.StringToCharArray(exploredText);
+
+                int rows = loadedMazeMap.GetLength(0);
+                int columns = loadedMazeMap.GetLength(1);
+
+                Player? loadedPlayer = Database.GetPlayerByName(playerName);
+
+                if (loadedPlayer == null)
+                {
+                    Database.GetOrCreatePlayer(playerName);
+                    loadedPlayer = Database.GetPlayerByName(playerName);
+                }
+
+                player = loadedPlayer!;
+                maze = new Maze(mazeName, loadedMazeMap, rows, columns);
+
+                currPos = new[] { playerX, playerY };
+                explored = loadedExploredMap;
+
+                PointLabel.Content = $"Pontok: {points}";
+                StepsLabel.Content = $"Lépések: {steps}";
+                CoordinateLabel.Content = $"Koordinatak row:{playerY} ; column:{playerX}";
+
+                Database.SaveGame(
+                    player.Name,
+                    maze,
+                    explored,
+                    currPos[0],
+                    currPos[1]
+                );
+
+                StartGame(normalGame);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Nem sikerült betölteni a mentést:\n{ex.Message}");
+            }
+        }
+        
+        string GetSaveValue(string saveText, string key)
+        {
+            string[] lines = saveText
+                .Replace("\r\n", "\n")
+                .Split('\n');
+
+            foreach (string line in lines)
+            {
+                if (line.StartsWith(key + "="))
+                {
+                    return line.Substring((key + "=").Length).Trim();
+                }
+            }
+
+            throw new Exception($"Hiányzik ez az adat a mentésből: {key}");
+        }
+        
+        string GetSaveSection(string saveText, string sectionName)
+        {
+            string[] lines = saveText
+                .Replace("\r\n", "\n")
+                .Split('\n');
+
+            StringBuilder sb = new();
+
+            bool reading = false;
+
+            foreach (string line in lines)
+            {
+                if (line.Trim() == $"[{sectionName}]")
+                {
+                    reading = true;
+                    continue;
+                }
+
+                if (reading && line.StartsWith("[") && line.EndsWith("]"))
+                {
+                    break;
+                }
+
+                if (reading)
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
+            string sectionText = sb.ToString().TrimEnd('\r', '\n');
+
+            if (string.IsNullOrWhiteSpace(sectionText))
+            {
+                throw new Exception($"Hiányzik ez a rész a mentésből: [{sectionName}]");
+            }
+
+            return sectionText;
+        }
+
+        private void UploadMazeButton(object sender, RoutedEventArgs e)
+        {
+
+            try
+            {
+                if (MazeNameBlock.Text == null || MazeNameBlock.Text == " ")
+                {
+                    return;
+                }
+
+                Database.SaveMaze(new Maze(MazeNameBlock.Text));
+                AppendMapList(Database.GetAllMazes());
+                
+            }
+            catch (Exception)
+            {
+                
+            }
+
         }
     }
 }

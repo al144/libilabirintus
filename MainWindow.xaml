@@ -64,11 +64,16 @@
                <ColumnDefinition Width="1000"/>
            </Grid.ColumnDefinitions> 
             
-            <ListBox Grid.Column="0" x:Name="SelectionListBox" Width="300" Height="800" KeyDown="SelectEnter" HorizontalAlignment="Left" SelectionChanged="SelectionChanged"/>
+            <StackPanel>
+                <ListBox Grid.Column="0" x:Name="SelectionListBox" Width="300" Height="500" KeyDown="SelectEnter" HorizontalAlignment="Left" SelectionChanged="SelectionChanged"/> 
+                <Button Content="Mentesfajl betoltese" Click="LoadSaveButton_OnClick"></Button>
+                <Label Content="Adja meg a map nevet"></Label>
+                <TextBox x:Name="MazeNameBlock"></TextBox>
+                <Button Content="Map Feltoltese" Click="UploadMazeButton"></Button>
+            </StackPanel>
             <Grid Grid.Column="1" x:Name="preGrid" VerticalAlignment="Center" ></Grid>
             <Grid Grid.Column="1" x:Name="QuestionGrid" Width="1000" Height="800" Background="AliceBlue" Visibility="Collapsed">
                 <StackPanel >
-                
                     <Label Content="Rejtve van az elonezet" 
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"

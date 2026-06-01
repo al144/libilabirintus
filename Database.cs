@@ -446,8 +446,8 @@ namespace libilabirintus
 
         public static string CharArrayToString(char[,] map)
         {
-            int columns = map.GetLength(0);
-            int rows = map.GetLength(1);
+            int rows = map.GetLength(0);
+            int columns = map.GetLength(1);
 
             StringBuilder sb = new();
 
@@ -455,7 +455,7 @@ namespace libilabirintus
             {
                 for (int x = 0; x < columns; x++)
                 {
-                    sb.Append(map[x, y]);
+                    sb.Append(map[y, x]);
                 }
 
                 sb.Append('\n');
@@ -474,13 +474,13 @@ namespace libilabirintus
             int rows = lines.Length;
             int columns = lines[0].Length;
 
-            char[,] map = new char[columns, rows];
+            char[,] map = new char[rows, columns];
 
             for (int y = 0; y < rows; y++)
             {
                 for (int x = 0; x < columns; x++)
                 {
-                    map[x, y] = lines[y][x];
+                    map[y, x] = lines[y][x];
                 }
             }
 
