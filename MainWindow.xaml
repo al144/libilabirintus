@@ -339,6 +339,34 @@
                 </StackPanel>
             </StackPanel>
         </Grid>
+        
+        <Grid x:Name="WinGrid">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                <Label Tag="WinTitle"
+                       Content="Ön Kivitte a játkot"
+                       HorizontalAlignment="Center"
+                       FontSize="30"
+                       Margin="0,0,0,20"/>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+
+                    <Button Tag="Continue"
+                            Content="Folytatás"
+                            Style="{StaticResource BigMenuButtonStyle}"
+                            Click="BackToInGame"/>
+
+                    <Button Tag="SaveAndExit"
+                            Content="Mentés és kilépés"
+                            Style="{StaticResource BigMenuButtonStyle}"
+                            Click="SaveAndToSelector"/>
+
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
 
     </Grid>
 </Window>

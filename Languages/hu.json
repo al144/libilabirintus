@@ -37,5 +37,6 @@
   "AllFilesFilter": "Minden fájl",
   "LoadSaveFailed": "Nem sikerült betölteni a mentést:",
   "MissingSaveValue": "Hiányzik ez az adat a mentésből",
-  "MissingSaveSection": "Hiányzik ez a rész a mentésből"
+  "MissingSaveSection": "Hiányzik ez a rész a mentésből",
+  "WinTitle" : "Ön Kivitte a játkot"
 }

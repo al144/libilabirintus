@@ -14,7 +14,6 @@ namespace libilabirintus
     {
         public int id { get;  set; }
         public string Name { get; set; }
-        public int TreasuryNum { get;  set; }
         public int Row { get;  set; }
         public int Column { get; set; }
         public char[,] Map { get; set; }
@@ -24,7 +23,6 @@ namespace libilabirintus
         {
             this.Name = name;
             this.Map = getMap();
-            this.TreasuryNum = getTreasuryRoomNum();
         }
 
         public Maze(string name, char[,] map, int row, int column)
@@ -66,7 +64,6 @@ namespace libilabirintus
         {
             List<int[]> exits = new List<int[]>();
 
-            // BAL SZÉL: x = 0, y = row
             for (int row = 0; row < Row; row++)
             {
                 if (new char[] { '╬', '═', '╦', '╩', '╣', '╗', '╝' }.Contains(Map[row, 0]))
@@ -75,7 +72,6 @@ namespace libilabirintus
                 }
             }
 
-            // JOBB SZÉL: x = Column - 1, y = row
             for (int row = 0; row < Row; row++)
             {
                 if (new char[] { '╬', '═', '╦', '╩', '╠', '╚', '╔' }.Contains(Map[row, Column - 1]))
@@ -84,7 +80,6 @@ namespace libilabirintus
                 }
             }
 
-            // FELSŐ SZÉL: x = col, y = 0
             for (int col = 0; col < Column; col++)
             {
                 if (new char[] { '╬', '╩', '║', '╣', '╠', '╝', '╚' }.Contains(Map[0, col]))
@@ -93,7 +88,6 @@ namespace libilabirintus
                 }
             }
 
-            // ALSÓ SZÉL: x = col, y = Row - 1
             for (int col = 0; col < Column; col++)
             {
                 if (new char[] { '╬', '╦', '║', '╣', '╠', '╗', '╔' }.Contains(Map[Row - 1, col]))
@@ -105,10 +99,20 @@ namespace libilabirintus
             return exits;
         }
 
-        int getTreasuryRoomNum()
+        public int FindTreasuryRoomNum()
         {
             int num = 0;
 
+            for (int i = 0; i < Row; i++)
+            {
+                for (int j = 0; j < Column; j++)
+                {
+                    if (Map[i, j] == '█')
+                    {
+                        num++;
+                    }
+                }
+            }
 
             return num;
         }

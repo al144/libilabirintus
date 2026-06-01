@@ -37,5 +37,6 @@
   "AllFilesFilter": "All files",
   "LoadSaveFailed": "Could not load the save:",
   "MissingSaveValue": "Missing save value",
-  "MissingSaveSection": "Missing save section"
+  "MissingSaveSection": "Missing save section",
+  "WinTitle" : "You Completed The Game"
 }

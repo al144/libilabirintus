@@ -24,6 +24,7 @@ namespace libilabirintus
         private bool normalGame = true;
         private int points = 0;
         private int steps = 0;
+        private List<int[]> exits = new();
         
         public MainWindow()
         {
@@ -472,7 +473,6 @@ namespace libilabirintus
         
         private void Game_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) return;
             if (InGameGrid.Visibility != Visibility.Visible) return;
             if (e.IsRepeat) return;
 
@@ -483,6 +483,28 @@ namespace libilabirintus
             }
 
             if (maze == null || player == null || currPos == null || explored == null)
+            {
+                return;
+            }
+
+            if (e.Key == Key.Enter)
+            {
+                exits = maze.FindExits() ?? new List<int[]>();
+
+                bool isOnExit = exits.Any(x =>
+                    x[0] == currPos[1] &&
+                    x[1] == currPos[0]
+                );
+
+                if (maze.FindTreasuryRoomNum() == 0 && isOnExit)
+                {
+                    ShowScene(WinGrid);
+                }
+
+                return;
+            }
+
+            if (e.Key != Key.W && e.Key != Key.A && e.Key != Key.S && e.Key != Key.D)
             {
                 return;
             }
@@ -702,7 +724,7 @@ namespace libilabirintus
                 {
                     explored = new char[maze.Row, maze.Column];
 
-                    List<int[]> exits = maze.FindExits();
+                    exits = maze.FindExits();
 
                     if (exits.Count == 0)
                     {
@@ -744,6 +766,8 @@ namespace libilabirintus
             }
 
             Database.SaveGame(player.Name, maze, explored, currPos[0], currPos[1]);
+            
+            
 
             SaveGameToSavFile();
             steps = 0;
@@ -823,7 +847,12 @@ namespace libilabirintus
             }
 
             ShowScene(InGameGrid);
-                
+            
+            
+            if (maze.FindTreasuryRoomNum() == 0 && exits.Count(x => x[0] == currPos[0] && x[1] == currPos[1]) == 1)
+            {
+                ShowScene(WinGrid);
+            }
 
             if (normal)
             {
