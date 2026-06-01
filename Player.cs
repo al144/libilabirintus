@@ -22,30 +22,6 @@ namespace libilabirintus
             return this;
         }
 
-        public int[] GetPlayerPosFromSave(Maze maze)
-        {
-            SaveData? save = Database.GetSave(this.Name, maze.Name);
-
-            char[,] exploredMap = new char[maze.Row, maze.Column];
-
-            if (save != null)
-            {
-                return new[] { save.PlayerX, save.PlayerY };
-            }
-
-            var exits = maze.FindExits();
-            int[] randomExit = exits[Random.Shared.Next(exits.Count)];
-
-            Database.SaveGame(
-                this.Name,
-                maze,
-                exploredMap,
-                randomExit[0],
-                randomExit[1]
-            );
-
-            return randomExit;
-        }
 
         public int[] Move(Key e, Maze maze, int[] playerPos)
         {

@@ -96,9 +96,9 @@
             <!-- upper bar -->
             <Label Grid.Row="0" Background="Black"></Label>
             <StackPanel >
-                <Label x:Name="PointLabel"></Label>
-                <Label x:Name="StepsLabel"></Label>
-                <Label x:Name="CoordinateLabel"></Label>
+                <Label x:Name="PointLabel" Content="Pontok" Foreground="Aqua"></Label>
+                <Label x:Name="StepsLabel" Content="Lepesek" Foreground="Aqua"></Label>
+                <Label x:Name="CoordinateLabel" Content="Koordinatak" Foreground="Aqua"></Label>
             </StackPanel>
 
             <!-- maze -->

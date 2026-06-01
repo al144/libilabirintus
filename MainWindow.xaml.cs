@@ -24,6 +24,8 @@ namespace libilabirintus
         private Char[,] explored;
         private int[] currPos;
         private bool normalGame = true;
+        private int points = 0;
+        private int steps = 0;
         
         public MainWindow()
         {
@@ -100,7 +102,7 @@ namespace libilabirintus
                         HorizontalContentAlignment = HorizontalAlignment.Center,
                         VerticalContentAlignment = VerticalAlignment.Center
                     };
-
+                    
                     if (currX == col && currY == row)
                     {
                         label.Background = new  SolidColorBrush(Colors.Blue);
@@ -233,25 +235,41 @@ namespace libilabirintus
             int[] playerPos = { currX, currY };
 
             int[] up = player.Move(Key.W, maze, playerPos);
-            if (up[0] == col && up[1] == row)
+            if (
+                !(up[0] == currX && up[1] == currY) &&
+                up[0] == col &&
+                up[1] == row
+            )
             {
                 return "↑";
             }
 
             int[] left = player.Move(Key.A, maze, playerPos);
-            if (left[0] == col && left[1] == row)
+            if (
+                !(left[0] == currX && left[1] == currY) &&
+                left[0] == col &&
+                left[1] == row
+            )
             {
                 return "←";
             }
 
             int[] down = player.Move(Key.S, maze, playerPos);
-            if (down[0] == col && down[1] == row)
+            if (
+                !(down[0] == currX && down[1] == currY) &&
+                down[0] == col &&
+                down[1] == row
+            )
             {
                 return "↓";
             }
 
             int[] right = player.Move(Key.D, maze, playerPos);
-            if (right[0] == col && right[1] == row)
+            if (
+                !(right[0] == currX && right[1] == currY) &&
+                right[0] == col &&
+                right[1] == row
+            )
             {
                 return "→";
             }
@@ -380,12 +398,41 @@ namespace libilabirintus
                 return;
             }
 
-            int[] oldPos = player.GetPlayerPosFromSave(maze);
-            
-            currPos = player.Move(e.Key, maze, oldPos);
+            if (maze == null || player == null || currPos == null || explored == null)
+            {
+                return;
+            }
 
+            int oldX = currPos[0];
+            int oldY = currPos[1];
 
-                
+            int[] newPos = player.Move(e.Key, maze, currPos);
+
+            int newX = newPos[0];
+            int newY = newPos[1];
+
+            if (oldX == newX && oldY == newY)
+            {
+                return;
+            }
+
+            currPos = newPos;
+
+            explored[newY, newX] = maze.Map[newY, newX];
+
+            CoordinateLabel.Content = $"Koordinatak row:{newY} ; column{newX}";
+
+            if (maze.Map[newY, newX] == '█')
+            {
+                points++;
+                PointLabel.Content = $"Pontok: {points}";
+
+                maze.Map[newY, newX] = '╬';
+                explored[newY, newX] = '╬';
+            }
+
+            steps++;
+            StepsLabel.Content = $"Lépések: {steps}";
 
             Database.SaveGame(
                 player.Name,
@@ -395,9 +442,9 @@ namespace libilabirintus
                 currPos[1]
             );
 
-            explored[currPos[1], currPos[0]] = maze.Map[currPos[1], currPos[0]];
             StartGame(normalGame);
         }
+        
         
         void ShowScene(Grid selectedGrid)
         {
@@ -458,21 +505,58 @@ namespace libilabirintus
         {
             if (e.Key == Key.Enter)
             {
-                string selectedMazeName = SelectionListBox.SelectedItem.ToString();
-                Console.WriteLine(selectedMazeName);
-            
-                ShowScene(InGameGrid);
+                if (SelectionListBox.SelectedItem == null)
+                {
+                    return;
+                }
+
+                string selectedMazeName = SelectionListBox.SelectedItem.ToString()!;
 
                 maze = Database.GetMazeByName(selectedMazeName);
-                explored = new char[maze.Row, maze.Column];
 
+                if (maze == null)
+                {
+                    return;
+                }
+
+                SaveData? save = Database.GetSave(player.Name, maze.Name);
+
+                if (save != null)
+                {
+                    currPos = new[] { save.PlayerX, save.PlayerY };
+                    explored = save.ExploredMap;
+                }
+                else
+                {
+                    explored = new char[maze.Row, maze.Column];
+
+                    List<int[]> exits = maze.FindExits();
+
+                    if (exits.Count == 0)
+                    {
+                        return;
+                    }
+
+                    currPos = exits[Random.Shared.Next(exits.Count)];
+
+                    explored[currPos[1], currPos[0]] = maze.Map[currPos[1], currPos[0]];
+
+                    Database.SaveGame(
+                        player.Name,
+                        maze,
+                        explored,
+                        currPos[0],
+                        currPos[1]
+                    );
+                }
+
+                StartGame(normalGame);
             }
 
             if (e.Key == Key.Escape)
             {
                 ShowScene(GameModeGrid);
             }
-
         }
 
         private void BackToInGame(object sender, RoutedEventArgs e)
@@ -500,13 +584,20 @@ namespace libilabirintus
 
         void StartGame(bool normal)
         {
+            if (maze == null || currPos == null)
+            {
+                return;
+            }
+
             ShowScene(InGameGrid);
-            currPos = player.GetPlayerPosFromSave(maze);
+                
+
             if (normal)
             {
                 DrawMap(maze, currPos[0], currPos[1]);
                 return;
             }
+
             DrawHiddenMap(maze, currPos[0], currPos[1]);
         }
 

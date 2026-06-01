@@ -64,26 +64,44 @@ namespace libilabirintus
 
         public List<int[]> FindExits()
         {
-            
             List<int[]> exits = new List<int[]>();
-            
-            for (int i = 0; i < this.Row; i++)
+
+            // BAL SZÉL: x = 0, y = row
+            for (int row = 0; row < Row; row++)
             {
-                if(new char[]{ '╬', '═', '╦', '╩', '╣', '╗', '╝'}.Contains(Map[i, 0])) exits.Add(new int[] { i, 0 } );
+                if (new char[] { '╬', '═', '╦', '╩', '╣', '╗', '╝' }.Contains(Map[row, 0]))
+                {
+                    exits.Add(new int[] { 0, row });
+                }
             }
-            for (int i = 0; i < Row; i++)
+
+            // JOBB SZÉL: x = Column - 1, y = row
+            for (int row = 0; row < Row; row++)
             {
-                if(new char[]{ '╬', '═', '╦', '╩', '╠', '╚', '╔'}.Contains(Map[i, Column-1])) exits.Add(new int[] { i, Column-1} );
+                if (new char[] { '╬', '═', '╦', '╩', '╠', '╚', '╔' }.Contains(Map[row, Column - 1]))
+                {
+                    exits.Add(new int[] { Column - 1, row });
+                }
             }
-            for (int i = 0; i < Column-1; i++)
+
+            // FELSŐ SZÉL: x = col, y = 0
+            for (int col = 0; col < Column; col++)
             {
-                if(new char[]{ '╬', '╩', '║', '╣', '╠',  '╝', '╚'}.Contains(Map[0, i])) exits.Add(new int[] { 0, i} );
+                if (new char[] { '╬', '╩', '║', '╣', '╠', '╝', '╚' }.Contains(Map[0, col]))
+                {
+                    exits.Add(new int[] { col, 0 });
+                }
             }
-            for (int i = 0; i < Column-1; i++)
+
+            // ALSÓ SZÉL: x = col, y = Row - 1
+            for (int col = 0; col < Column; col++)
             {
-                if(new char[]{ '╬', '╦', '║', '╣', '╠', '╗', '╔'}.Contains(Map[Row-1, i])) exits.Add(new int[] {Row-1, i } );
+                if (new char[] { '╬', '╦', '║', '╣', '╠', '╗', '╔' }.Contains(Map[Row - 1, col]))
+                {
+                    exits.Add(new int[] { col, Row - 1 });
+                }
             }
-            
+
             return exits;
         }
 
