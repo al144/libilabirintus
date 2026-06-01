@@ -164,6 +164,12 @@
                             Height="100"
                             Margin="10"
                             Click="HiddenStart"/>
+                    
+                    <Button Content="Vissza Bejelentkezesbe"
+                            Width="200"
+                            Height="100"
+                            Margin="10"
+                            Click="BackToLogin"/>
 
                 </StackPanel>
 

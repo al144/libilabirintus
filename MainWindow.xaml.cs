@@ -459,23 +459,100 @@ namespace libilabirintus
 
             selectedGrid.Visibility = Visibility.Visible;
         }
+        
+        private void ShowUserError(string message)
+        {
+            MessageBox.Show(message, "Hiba", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
 
         private void CreatePlayerButton(object sender, RoutedEventArgs e)
         {
-            Database.CreatePlayer(CreateUserNameBox.Text, CreatePasswordBox.Password);
-            ShowScene(LoginGrid);
+            string username = CreateUserNameBox.Text.Trim();
+            string password = CreatePasswordBox.Password;
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                ShowUserError("Adj meg felhasználónevet.");
+                return;
+            }
+
+            if (username.Length < 3)
+            {
+                ShowUserError("A felhasználónév legyen legalább 3 karakter.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                ShowUserError("Adj meg jelszót.");
+                return;
+            }
+
+            if (password.Length < 3)
+            {
+                ShowUserError("A jelszó legyen legalább 3 karakter.");
+                return;
+            }
+
+            if (Database.GetPlayerByName(username) != null)
+            {
+                ShowUserError("Már létezik ilyen nevű játékos.");
+                return;
+            }
+
+            try
+            {
+                Database.CreatePlayer(username, password);
+
+                CreateUserNameBox.Text = "";
+                CreatePasswordBox.Password = "";
+
+                ShowScene(LoginGrid);
+            }
+            catch (Exception ex)
+            {
+                ShowUserError($"Nem sikerült létrehozni a játékost:\n{ex.Message}");
+            }
         }
         
         private void LoginButton(object sender, RoutedEventArgs e)
         {
-            if (Database.CheckLogin(LoginUsernameBox.Text, LoginPasswordBox.Password))
+            string username = LoginUsernameBox.Text.Trim();
+            string password = LoginPasswordBox.Password;
+
+            if (string.IsNullOrWhiteSpace(username))
             {
-                player = Database.GetPlayerByName(LoginUsernameBox.Text);
-            
-                ShowScene(GameModeGrid);
-                AppendMapList(Database.GetAllMazes());
+                ShowUserError("Add meg a felhasználónevet.");
+                return;
             }
 
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                ShowUserError("Add meg a jelszót.");
+                return;
+            }
+
+            Player? foundPlayer = Database.GetPlayerByName(username);
+
+            if (foundPlayer == null)
+            {
+                ShowUserError("Nincs ilyen játékos.");
+                return;
+            }
+
+            if (!Database.CheckLogin(username, password))
+            {
+                ShowUserError("Rossz jelszó.");
+                return;
+            }
+
+            player = foundPlayer;
+
+            LoginUsernameBox.Text = "";
+            LoginPasswordBox.Password = "";
+
+            
+            ShowScene(GameModeGrid);
         }
 
         private void GoToCreatePlayerButton(object sender, RoutedEventArgs e)
@@ -485,6 +562,7 @@ namespace libilabirintus
 
         void AppendMapList(List<Maze> mazes)
         {
+            SelectionListBox.Items.Clear();
             foreach (var maze in mazes)
             {
                 SelectionListBox.Items.Add(maze.Name);
@@ -499,7 +577,12 @@ namespace libilabirintus
                 QuestionGrid.Visibility = Visibility.Visible;
                 return;
             }
-            DrawPreMap(Database.GetMazeByName(SelectionListBox.SelectedItem.ToString())); 
+
+            try
+            {
+                DrawPreMap(Database.GetMazeByName(SelectionListBox.SelectedItem.ToString()));
+            }
+            catch (Exception exception) {}
         }
 
         private void SelectEnter(object sender, KeyEventArgs e)
@@ -633,12 +716,14 @@ namespace libilabirintus
         private void NormalStart(object sender, RoutedEventArgs e)
         {
             normalGame = true;
+            AppendMapList(Database.GetAllMazes());
             ShowScene(SelectorGrid);
         }
 
         private void HiddenStart(object sender, RoutedEventArgs e)
         {
             normalGame = false;
+            AppendMapList(Database.GetAllMazes());
             ShowScene(SelectorGrid);
         }
 
@@ -811,6 +896,11 @@ namespace libilabirintus
                 
             }
 
+        }
+
+        private void BackToLogin(object sender, RoutedEventArgs e)
+        {
+            ShowScene(LoginGrid);
         }
     }
 }
